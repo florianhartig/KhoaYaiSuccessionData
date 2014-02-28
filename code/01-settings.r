@@ -9,7 +9,7 @@ library(lme4)
 library(vegan)
 library(foreach)
 
-rootdirectory <- "/Users/Florian/Home/Projekte/Papers_in_Progress/14-WirongCrownShape"
+rootdirectory <- "/Users/Florian/Home/Projekte/Papers_in_Progress/14-WirongCrownShape/KhoaYaiSuccessionData/"
 setwd(rootdirectory)
 
 
