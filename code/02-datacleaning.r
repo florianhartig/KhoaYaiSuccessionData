@@ -9,91 +9,14 @@ baseData <-read.csv("data/CrHi_Map_MapOK_Spp.csv")
 speciesData <- read.csv("data/Species_List.csv")
 
 
-str(baseData)
-
-# 'data.frame':  11361 obs. of  48 variables:
-#   $ Stage        : int  3 3 3 3 3 3 3 3 3 3 ...
-# $ Plot_ID      : int  1 1 1 1 1 1 1 1 1 1 ...
-# $ Abbrev       : Factor w/ 8 levels "DumpSF","KK1SF",..: 5 5 5 5 5 5 5 5 5 5 ...
-# $ Row          : int  1 1 1 1 2 1 1 2 1 2 ...
-# $ Column       : int  1 1 1 1 3 1 1 3 1 3 ...
-# $ SubQuad      : Factor w/ 16 levels "A1","A2","A3",..: 1 7 3 2 5 2 2 5 2 6 ...
-# $ ID_Tree_Table: int  800 824 807 806 1169 805 804 1170 803 1171 ...
-# $ Combine.     : int  800 824 807 806 1173 805 804 1174 803 1175 ...
-# $ X            : num  NA NA NA 0.5 NA 0.61 NA 2.5 NA 2.05 ...
-# $ Y            : num  0.27 2.29 NA NA 1.5 NA NA NA NA 1 ...
-# $ X_minus      : num  0.84 2.65 1.49 NA 0.58 NA 0.87 NA 2.37 NA ...
-# $ Y_minus      : num  NA NA 1.9 0.49 NA 0.62 0.8 0.4 1.45 NA ...
-# $ Dbh_a        : num  11.2 4.4 70.7 14.7 10 4.9 14.9 24 4 6 ...
-# $ Dbh_b        : num  NA NA NA NA NA NA NA 22.2 NA NA ...
-# $ Dbh_c        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_d        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_e        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_f        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_g        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_h        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_i        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_j        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_k        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_l        : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Dbh_m        : int  NA NA NA NA NA NA NA NA NA NA ...
-# $ Old_Tree_ID  : int  NA NA NA NA NA NA NA NA NA NA ...
-# $ TB.Le.Pr     : Factor w/ 12 levels "","132","Le",..: 1 1 1 1 1 1 1 1 1 1 ...
-# $ Lia_Dbh      : num  2 NA NA NA NA NA NA NA NA NA ...
-# $ Old_Dbh_cm   : num  NA NA NA NA NA NA NA NA NA NA ...
-# $ Species_ID   : Factor w/ 164 levels "","1","1-3","100",..: 26 114 161 21 153 19 153 117 19 130 ...
-# $ CrHi_ID      : int  NA 63 NA NA NA NA NA NA NA NA ...
-# $ TH           : num  NA 6.2 NA NA NA NA NA NA NA NA ...
-# $ H_1stB       : num  NA 2.1 NA NA NA NA NA NA NA NA ...
-# $ Crown_X      : num  NA 2.16 NA NA NA NA NA NA NA NA ...
-# $ Width_X      : num  NA 4.08 NA NA NA NA NA NA NA NA ...
-# $ Deg_X        : int  NA 240 NA NA NA NA NA NA NA NA ...
-# $ Width_Y      : num  NA 3.57 NA NA NA NA NA NA NA NA ...
-# $ Crown_Y      : num  NA 2.58 NA NA NA NA NA NA NA NA ...
-# $ Deg_Y        : int  NA 330 NA NA NA NA NA NA NA NA ...
-# $ Width_Z1     : num  NA 2.87 NA NA NA NA NA NA NA NA ...
-# $ Crown_Z1     : num  NA 1.72 NA NA NA NA NA NA NA NA ...
-# $ Deg_Z1       : int  NA 285 NA NA NA NA NA NA NA NA ...
-# $ Width_Z2     : num  NA 2.87 NA NA NA NA NA NA NA NA ...
-# $ Crown_Z2     : num  NA 1.43 NA NA NA NA NA NA NA NA ...
-# $ Deg_Z2       : int  NA 195 NA NA NA NA NA NA NA NA ...
-# $ Trunk_X      : num  NA 1.85 NA NA NA NA NA NA NA NA ...
-# $ Trunk_Y      : num  NA 2.49 NA NA NA NA NA NA NA NA ...
-# $ Shape        : Factor w/ 5 levels "","F","O","P",..: 1 4 1 1 1 1 1 1 1 1 ...
-
-str(speciesData)
-
-# 'data.frame':  272 obs. of  3 variables:
-#   $ genus       : Factor w/ 174 levels "Actinodaphne",..: 1 2 3 3 3 3 3 4 5 6 ...
-# $ specificname: Factor w/ 240 levels "acuminata","acuminatissima",..: 11 113 63 64 121 153 202 58 227 38 ...
-# $ List_ID     : int  1 2 3 4 5 6 7 8 9 10 ...
-
-# Consitency checks
-
-# check for inconsitency in the position coordinates
-which(!is.na(baseData$X+baseData$X_minus))
-which(!is.na(baseData$Y+baseData$Y_minus))
-
-min(c(baseData$X,baseData$X_minus, baseData$Y,baseData$Y_minus), na.rm=T)
-max(c(baseData$X,baseData$X_minus, baseData$Y,baseData$Y_minus), na.rm=T)
-
-which(baseData$X > 5)
-which(baseData$X_minus > 5)
-which(baseData$Y > 5)
-which(baseData$Y_minus > 5)
-
-baseData$Dbh_a[which(baseData$Dbh_a > 100)]
-
-
 ##################################################################
 # Reordering, Calculations, Matching
 # Copies the original dataframe, all changes are made in the new df
 
-# copying data and convenience variable
+# copying data 
 cleanedData = baseData
 
-datarows = nrow(cleanedData) 
-
+datarows = nrow(cleanedData)
 
 
 ############
@@ -101,7 +24,11 @@ datarows = nrow(cleanedData)
 getName <- function(index){
   return(paste(speciesData[index,1], speciesData[index,2]))
 }
-cleanedData$Species = as.factor(sapply(baseData$Species_ID, getName))
+
+getName(103)
+getName(104)
+
+cleanedData$Species = as.factor(sapply(as.character(baseData$Species_ID), getName))
 cleanedData$Species_ID = NULL
 
 ##############
@@ -112,8 +39,51 @@ cleanedData$CrHi_ID = NULL
 colnames(cleanedData)[which(colnames(cleanedData) == "Abbrev")] = "Plot"
 
 cleanedData$Stage = as.factor(cleanedData$Stage)
-levels(cleanedData$Stage) = c("establishment phase", "exclusion phase", "climax phase")
+levels(cleanedData$Stage) = c("Establishment", "Exclusion", "Old-Growth")
 
+
+# Consitency checks
+
+# check for inconsitency in the position coordinates
+which(!is.na(cleanedData$X+cleanedData$X_minus))
+which(!is.na(cleanedData$Y+cleanedData$Y_minus))
+
+min(c(cleanedData$X,cleanedData$X_minus, cleanedData$Y,cleanedData$Y_minus), na.rm=T)
+max(c(cleanedData$X,cleanedData$X_minus, cleanedData$Y,cleanedData$Y_minus), na.rm=T)
+
+which(cleanedData$X > 5)
+which(cleanedData$X_minus > 5)
+which(cleanedData$Y > 5)
+which(cleanedData$Y_minus > 5)
+
+cleanedData$Dbh_a[which(cleanedData$Dbh_a > 100)]
+
+
+plot(cleanedData$TH,cleanedData$H_1stB, col = cleanedData$Plot)
+abline(0,1)
+legend("bottomright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+
+plot(cleanedData$Dbh_a, cleanedData$Crown_Z1, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+
+plot(cleanedData$Dbh_a, cleanedData$Crown_Z2, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+
+plot(cleanedData$Dbh_a, cleanedData$Width_X, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+
+plot(cleanedData$Dbh_a, cleanedData$Width_Y, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+plot(cleanedData$Dbh_a, cleanedData$Crown_X, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+plot(cleanedData$Dbh_a, cleanedData$Crown_Y, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
 
 
 #################
@@ -146,6 +116,13 @@ cleanedData$Y = cleanedData$Y + cleanedData$Y_minus + (cleanedData$Row-1) * 20 +
 cleanedData$X_minus = NULL
 cleanedData$Y_minus = NULL
 
+cleanedData$crownHeight = cleanedData$TH - cleanedData$H_1stB 
+cleanedData$crownHeight[cleanedData$crownHeight<0] = NA
+cleanedData$relativeCrownHeight = cleanedData$crownHeight / cleanedData$TH
+
+plot(cleanedData$Dbh_a, cleanedData$crownHeight, col = cleanedData$Plot)
+plot(cleanedData$Dbh_a, cleanedData$relativeCrownHeight, col = cleanedData$Plot)
+boxplot(cleanedData$relativeCrownHeight ~ cleanedData$Shape + cleanedData$Plot, las = 2, col = rep(c(1,2,3,4,5),8))
 
 
 # other stuff
