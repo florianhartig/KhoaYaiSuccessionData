@@ -9,11 +9,16 @@ library(lme4)
 library(vegan)
 library(foreach)
 library(splancs)
+library(compiler)
 
 rootdirectory <- "/Users/Florian/Home/Projekte/Papers_in_Progress/14-WirongCrownShape/KhoaYaiSuccessionData/"
 setwd(rootdirectory)
 
+# reading Plot data
+baseData <-read.csv("data/CrHi_Map.csv")
+speciesData <- read.csv("data/Species_List.csv")
 
+# create output folders
 dir.create(file.path(rootdirectory, "results/paper"), showWarnings = FALSE)
 
 
@@ -22,7 +27,7 @@ dir.create(file.path(rootdirectory, "results/paper"), showWarnings = FALSE)
 # helper functions
 
 
-# from package gtools
+# copied from package gtools to avoid masking other functions
 
 quantcut <- function (x, q = seq(0, 1, by = 0.25), na.rm = TRUE, ...) 
 {
