@@ -10,12 +10,14 @@ library(vegan)
 library(foreach)
 library(splancs)
 library(compiler)
+library(beanplot)
+library(spatstat)
 
 rootdirectory <- "/Users/Florian/Home/Projekte/Papers_in_Progress/14-WirongCrownShape/KhoaYaiSuccessionData/"
 setwd(rootdirectory)
 
 # reading Plot data
-baseData <-read.csv("data/CrHi_Map.csv")
+baseData <-read.csv("data/CrHi_Map2.csv")
 speciesData <- read.csv("data/Species_List.csv")
 
 # create output folders
