@@ -1,4 +1,9 @@
-#' script with basic settings. Change rootdirectory to your project location
+#' Script with basic settings and helper functions
+#' for analysis of Khao Yai Succession data
+#' 
+#' Scripts are intended to be run in order of file names
+#' 
+#' Change rootdirectory to your project location
 #'
 #' @author Florian Hartig \url{http://florianhartig.wordpress.com/}
 
@@ -22,7 +27,7 @@ speciesData <- read.csv("data/Species_List.csv")
 
 # create output folders
 dir.create(file.path(rootdirectory, "results/paper"), showWarnings = FALSE)
-
+dir.create(file.path(rootdirectory, "results/diagnostics"), showWarnings = FALSE)
 
 
 ########################################

@@ -1,4 +1,7 @@
 #' Data preparation and cleaning
+#' for analysis of Khao Yai Succession data
+#' 
+#' Scripts are intended to be run in order of file names
 #'
 #' @author Florian Hartig \url{http://florianhartig.wordpress.com/}
 
@@ -25,12 +28,13 @@ cleanedData$Stage = as.factor(cleanedData$Stage)
 levels(cleanedData$Stage) = c("Establishment", "Exclusion", "Old-Growth")
 cleanedData$Shape[cleanedData$Shape == ""] = NA
 cleanedData$Shape = factor(cleanedData$Shape)
+cleanedData$removedInconsistencies= rep("", datarows) # for consistency checks
 
-# Consitency checks
 
-cleanedData$removedInconsistencies= rep("", datarows)
+######################
+# HANDLE TREE XY COORDINATES
 
-# check for inconsitency in the position coordinates
+# check for both x an x_minus, if so, keep one (random) of them
 
 indices <- which(!is.na(cleanedData$X+cleanedData$X_minus))
 cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "X and Xminus", cleanedData$X[indices], cleanedData$X_minus[indices] )
@@ -40,7 +44,7 @@ indices <- which(!is.na(cleanedData$Y+cleanedData$Y_minus))
 cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "Y and Yminus", cleanedData$Y[indices], cleanedData$Y_minus[indices] )
 for (i in indices) if (sample.int(2,1) == 1) cleanedData$Y[i] = NA else cleanedData$Y_minus[i] = NA
 
-# too large coordinates
+# check for too large coordinates, if so, assign random position within subquadrat
 
 resampleColumn <- function(vectorX) return(sample(vectorX, datarows, replace = T))
 
@@ -60,9 +64,48 @@ indices <- which(cleanedData$Y_minus > 5)
 cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "X_minus>5", cleanedData$Y_minus[indices])
 cleanedData$Y_minus[indices] <- sample(cleanedData$Y_minus[cleanedData$Y_minus < 5], length(indices), replace = T)
 
+# change to absolute coordinates
+
+cleanedData$X[is.na(cleanedData$X)] = 0
+cleanedData$Y[is.na(cleanedData$Y)] = 0
+cleanedData$X_minus[is.na(cleanedData$X_minus)] = 0
+cleanedData$Y_minus[is.na(cleanedData$Y_minus)] = 0
+
+cleanedData$X_minus[!is.na(baseData$X_minus)] = - cleanedData$X_minus[!is.na(baseData$X_minus)] + 5
+cleanedData$Y_minus[!is.na(baseData$Y_minus)] = - cleanedData$Y_minus[!is.na(baseData$Y_minus)] + 5
+
+cleanedData$X = cleanedData$X + cleanedData$X_minus + (cleanedData$Column - 1) * 20 + ((as.numeric(cleanedData$SubQuad)-1) %/%4 ) * 5
+cleanedData$Y = cleanedData$Y + cleanedData$Y_minus + (cleanedData$Row - 1) * 20 + (as.numeric(cleanedData$SubQuad) %%4) * 5
+
+cleanedData$X_minus = NULL
+cleanedData$Y_minus = NULL
+
+
+#################
+# DBH 
+
 indices <- which(cleanedData$Dbh_a > 100)
-cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "DBHa > 100", cleanedData$Dbh_a[indices])
-cleanedData$Dbh_a[indices] <- NA
+cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "DBH > 100", cleanedData$Dbh_a[indices])
+cleanedData$Dbh_a[indices] = NA
+
+indices <- which(cleanedData$Dbh_b > 100)
+cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "DBHb > 100", cleanedData$Dbh_b[indices])
+cleanedData$Dbh_b[indices] = NA
+
+indices <- which(cleanedData$Dbh_a < 4)
+cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "DBH < 4", cleanedData$Dbh_a[indices])
+cleanedData$Dbh_a[indices] = NA
+
+indices <- which(cleanedData$Dbh_b < 4)
+cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "DBHb < 4", cleanedData$Dbh_b[indices])
+cleanedData$Dbh_b[indices] = NA
+
+
+indices <- which(cleanedData$Dbh_a < cleanedData$Dbh_b)
+cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "DBHa < DBHb", cleanedData$Dbh_a[indices], cleanedData$Dbh_b[indices])
+tmp <- cleanedData$Dbh_a[indices] 
+cleanedData$Dbh_a[indices] <- cleanedData$Dbh_b[indices] 
+cleanedData$Dbh_b[indices] <- tmp
 
 
 ############
@@ -83,56 +126,39 @@ tmp <- cleanedData$TH[indices]
 cleanedData$TH[indices]<- cleanedData$H_1stB[indices]
 cleanedData$H_1stB[indices] <- tmp
 
-indices <- which(cleanedData$Dbh_a > 100)
-cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "DBH > 100", cleanedData$Dbh_a[indices])
-cleanedData$Dbh_a[indices] = NA
-
-indices <- which(cleanedData$Dbh_b > 100)
-cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "DBHb > 100", cleanedData$Dbh_b[indices])
-cleanedData$Dbh_b[indices] = NA
-
-indices <- which(cleanedData$Dbh_a < cleanedData$Dbh_b)
-cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "DBHa < DBHb", cleanedData$Dbh_a[indices], cleanedData$Dbh_b[indices])
-tmp <- cleanedData$Dbh_a[indices] 
-cleanedData$Dbh_a[indices] <- cleanedData$Dbh_b[indices] 
-cleanedData$Dbh_b[indices] <- tmp
+cleanedData$crownHeight = cleanedData$TH - cleanedData$H_1stB 
+cleanedData$relativeCrownHeight = cleanedData$crownHeight / cleanedData$TH
 
 
-cleanedData$inclination[heightMeasured] <- atan(sqrt((cleanedData$Crown_X[heightMeasured]-cleanedData$Trunk_X[heightMeasured])^2 
-                                                     + (cleanedData$Crown_Y[heightMeasured] - cleanedData$Trunk_Y[heightMeasured])^2) / cleanedData$TH[heightMeasured])
-
-plot(cleanedData$inclination, cleanedData$H_1stB/cleanedData$TH, col = cleanedData$Plot)
-abline(1,0)
-
+#################
+# CROWN POSITION
 
 plot(cleanedData$Dbh_a, cleanedData$Width_X, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
 plot(cleanedData$Dbh_a, cleanedData$Width_Y, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
 plot(cleanedData$Width_X, cleanedData$Width_Y, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+plot(cleanedData$Dbh_a, cleanedData$Crown_Z1, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+plot(cleanedData$Dbh_a, cleanedData$Crown_Z2, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+plot(cleanedData$Dbh_a, cleanedData$Crown_X, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
+plot(cleanedData$Dbh_a, cleanedData$Crown_Y, col = cleanedData$Plot)
+legend("topright", legend = as.character(levels(cleanedData$Plot)), pch = 1, col = palette())
+
 
 indices <- which(cleanedData$Width_Y > 2* cleanedData$Width_X)
 cleanedData$removedInconsistencies[indices] <- paste(cleanedData$removedInconsistencies[indices], "WidthX > 2 * WidthY", cleanedData$Width_X[indices], cleanedData$Width_Y[indices])
 cleanedData$Width_Y[indices] <- cleanedData$Width_X[indices]
 
-
-##############
-# calculations of absolute coordinates
-
-cleanedData$X[is.na(cleanedData$X)] = 0
-cleanedData$Y[is.na(cleanedData$Y)] = 0
-cleanedData$X_minus[is.na(cleanedData$X_minus)] = 0
-cleanedData$Y_minus[is.na(cleanedData$Y_minus)] = 0
-
-cleanedData$X_minus[!is.na(baseData$X_minus)] = - cleanedData$X_minus[!is.na(baseData$X_minus)] + 5
-cleanedData$Y_minus[!is.na(baseData$Y_minus)] = - cleanedData$Y_minus[!is.na(baseData$Y_minus)] + 5
-
-cleanedData$X = cleanedData$X + cleanedData$X_minus + (cleanedData$Column - 1) * 20 + ((as.numeric(cleanedData$SubQuad)-1) %/%4 ) * 5
-cleanedData$Y = cleanedData$Y + cleanedData$Y_minus + (cleanedData$Row - 1) * 20 + (as.numeric(cleanedData$SubQuad) %%4) * 5
-
-cleanedData$X_minus = NULL
-cleanedData$Y_minus = NULL
-
-cleanedData$crownHeight = cleanedData$TH - cleanedData$H_1stB 
-cleanedData$relativeCrownHeight = cleanedData$crownHeight / cleanedData$TH
 
 get.crown.points <- function(x){
   
@@ -164,10 +190,28 @@ get.crown.points <- function(x){
   }
 }
 
+
+#####################
+# INCLINATION
+
+cleanedData$inclination[heightMeasured] <- atan(sqrt((cleanedData$Crown_X[heightMeasured]-cleanedData$Trunk_X[heightMeasured])^2 
+                                                     + (cleanedData$Crown_Y[heightMeasured] - cleanedData$Trunk_Y[heightMeasured])^2) / cleanedData$TH[heightMeasured])
+
+plot(cleanedData$inclination, cleanedData$H_1stB/cleanedData$TH, col = cleanedData$Plot)
+abline(1,0)
+
+####################
+# CROWN AREA
+
 #crowncoordinates <- foreach(i=1:datarows) %do% get.crown.points(cleanedData[i,])
 #cleanedData$crownArea <- unlist(foreach(i=1:datarows) %do% if (is.na(crowncoordinates[[i]])) NA else areapl(crowncoordinates[[i]]))
 
 cleanedData$crownArea = pi * cleanedData$Width_X * cleanedData$Width_Y / 4
+
+plot(cleanedData$Dbh_a, cleanedData$crownArea, col = cleanedData$Plot)
+
+####################
+# CROWN VOLUME
 
 # shapefactor assumes that F (flat), O (oval) and S (Spere) are esentially 
 
@@ -176,6 +220,26 @@ shapefactor <- c(2/3, 2/3, 1/3, 2/3, NA)
 cleanedData$crownVolume <- cleanedData$crownArea*cleanedData$crownHeigh* 
   shapefactor[ifelse(is.na(cleanedData$Shape), 5,as.numeric(cleanedData$Shape))]
 
+plot(cleanedData$Dbh_a, cleanedData$crownVolume, col = cleanedData$Plot)
+
+
+# SUMMARIZE INCONSISTENCIES
 
 inconsistent <- (cleanedData[cleanedData$removedInconsistencies != "", ])
-write.table(inconsistent, "inconsistencies.csv")
+write.csv2(inconsistent, "results/inconsistencies.csv")
+head(cleanedData[cleanedData$removedInconsistencies!="",])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
