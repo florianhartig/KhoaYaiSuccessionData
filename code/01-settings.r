@@ -18,6 +18,8 @@ library(compiler)
 library(beanplot)
 library(spatstat)
 
+rm(list=ls(all=TRUE))
+
 rootdirectory <- "/Users/Florian/Home/Projekte/Papers_in_Progress/14-WirongCrownShape/KhoaYaiSuccessionData/"
 setwd(rootdirectory)
 

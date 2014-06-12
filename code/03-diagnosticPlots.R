@@ -7,6 +7,10 @@
 #' @note can also be run during data cleaning to check for differences
 
 
+rm(list=ls(all=TRUE))
+load(file = "data/cleanedData.RData")
+
+
 draw.plots <- function(data){
   
   plotnames <- levels(data$Plot)

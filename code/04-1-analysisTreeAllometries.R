@@ -4,6 +4,10 @@
 #' Scripts are intended to be run in order of file names
 #'
 #' @author Florian Hartig \url{http://florianhartig.wordpress.com/}
+#' 
+
+rm(list=ls(all=TRUE))
+load(file = "data/cleanedData.RData")
 
 attach(cleanedData)
 

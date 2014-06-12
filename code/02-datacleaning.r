@@ -77,6 +77,10 @@ cleanedData$Y_minus[!is.na(baseData$Y_minus)] = - cleanedData$Y_minus[!is.na(bas
 cleanedData$X = cleanedData$X + cleanedData$X_minus + (cleanedData$Column - 1) * 20 + ((as.numeric(cleanedData$SubQuad)-1) %/%4 ) * 5
 cleanedData$Y = cleanedData$Y + cleanedData$Y_minus + (cleanedData$Row - 1) * 20 + (as.numeric(cleanedData$SubQuad) %%4) * 5
 
+# Comment Wirong -I think we should subtract like the cleanedData$X. Because if trees are in subquadrat A4,B4,C4 or D4, it will shift to 0 instead of 15. There are some codes that I totally don't understand. I might ask you some days.
+
+# FH: Unclear, check back
+
 cleanedData$X_minus = NULL
 cleanedData$Y_minus = NULL
 
@@ -231,7 +235,7 @@ head(cleanedData[cleanedData$removedInconsistencies!="",])
 
 
 
-
+save.image(file = "data/cleanedData.RData")
 
 
 
