@@ -23,7 +23,7 @@ par(mfrow=c(4,4))
 
 for (i in 1:length(plots)){
   
-  selectedData <- cleanedData[cleanedData$Plot == plots[i],]
+  selectedData <- cleanedData[cleanedData$Plot == plots[i] & !is.na(cleanedData$Dbh_a) & cleanedData$Dbh_a > 5,]
   attach(selectedData)
   pattern <- ppp(X , Y, window=owin(c(0,ceiling(max(X))),c(0,ceiling(max(Y)))))  
   

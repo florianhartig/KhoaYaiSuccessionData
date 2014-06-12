@@ -28,21 +28,21 @@ par(mfrow=c(1,2))
   # LEAN #
   
   boot.median <- function(vec,f)return(median(vec[f], na.rm = T )) 
-  leanPerPlot <- foreach(i=1:8) %do% boot(inclination[as.numeric(Plot) == i & Dbh_a<6], boot.median, 10000)
+  leanPerPlot <- foreach(i=1:8) %do% boot(inclination[as.numeric(Plot) == i & Dbh_a>7], boot.median, 10000)
   
   bestEstimateLean <- unlist(foreach(i=1:8) %do% leanPerPlot[[i]]$t0)
   
   confintervals <- foreach(i=1:8) %do% boot.ci(leanPerPlot[[i]], type = "bca")
   
   CI <- matrix(unlist(foreach(i=1:8) %do% confintervals[[i]]$bca[1,4:5]), nrow = 2, byrow = F)
-  barplot2(bestEstimateLean, ci.l = CI[1,] ,ci.u = CI[2,], plot.ci = T, horiz = T, space = 1, main = "Lean [dbh > 6]", xlab = "Inclination [degrees]")
+  barplot2(bestEstimateLean, ci.l = CI[1,] ,ci.u = CI[2,], plot.ci = T, horiz = T, space = 1, main = "Lean [dbh > 7]", xlab = "Inclination [degrees]")
   
 
 dev.off()
 
 
 # differences NS
-fitI <- lmer(inclination ~ Stage + (1|Plot), data = cleanedData[cleanedData$Dbh_a<6,]) 
+fitI <- lmer(inclination ~ Stage + (1|Plot), data = cleanedData[cleanedData$Dbh_a>6,]) 
 Anova(fitI)
 
 detach(cleanedData)
