@@ -6,7 +6,7 @@
 #' @author Florian Hartig \url{http://florianhartig.wordpress.com/}
 
 rm(list=ls(all=TRUE))
-load(file = "data/cleanedData.RData")
+load(file = "data/cleanedData2.RData")
 
 ########### spatial pattern ######################
 

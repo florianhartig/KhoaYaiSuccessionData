@@ -66,3 +66,7 @@ results.allometrie <- data.frame(fixef(fitTH), sqrt(diag(vcov(fitTH))),
 
 colnames(results.allometrie) = c("Dia-Hei", "SE.H" ,"Dia-CA", "SE.CA" ,
                                  "Dia-CH", "SE.CH" ,"Dia-CV", "SE.CV" )
+
+
+save.image(file = "data/cleanedData2.RData")
+

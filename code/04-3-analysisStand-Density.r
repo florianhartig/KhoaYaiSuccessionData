@@ -10,7 +10,7 @@ library(gplots)
 library(car)
 
 rm(list=ls(all=TRUE))
-load(file = "data/cleanedData.RData")
+load(file = "data/cleanedData2.RData")
 
 attach(cleanedData)
 

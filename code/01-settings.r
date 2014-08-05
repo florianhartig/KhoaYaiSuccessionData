@@ -7,24 +7,15 @@
 #'
 #' @author Florian Hartig \url{http://florianhartig.wordpress.com/}
 
-
-library(plyr)
-library(boot)
-library(lme4)
-library(vegan)
-library(foreach)
-library(splancs)
-library(compiler)
-library(beanplot)
-library(spatstat)
-
 rm(list=ls(all=TRUE))
+
+source("code/01-packages.r")
 
 rootdirectory <- "/Users/Florian/Home/Projekte/Papers_in_Progress/14-WirongCrownShape/KhoaYaiSuccessionData/"
 setwd(rootdirectory)
 
 # reading Plot data
-baseData <-read.csv("data/CrHi_Map2.csv")
+baseData <-read.csv("data/CrHi_Map4.csv")
 speciesData <- read.csv("data/Species_List.csv")
 
 # create output folders
