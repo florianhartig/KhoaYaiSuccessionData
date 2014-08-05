@@ -23,6 +23,9 @@ dir.create(file.path(rootdirectory, "results/paper"), showWarnings = FALSE)
 dir.create(file.path(rootdirectory, "results/diagnostics"), showWarnings = FALSE)
 
 
+
+
+
 ########################################
 # helper functions
 

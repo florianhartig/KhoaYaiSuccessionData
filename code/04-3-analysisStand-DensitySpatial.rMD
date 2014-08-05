@@ -1,0 +1,124 @@
+---
+title: "Supplementary - Calculation of stand structure"
+author: ""
+date: "5 Aug 2014"
+output: html_document
+---
+
+Report created with knitR. Source code see https://github.com/florianhartig/KhoaYaiSuccessionData
+
+# Preparing workspace
+
+```{r message =FALSE}
+rm(list=ls(all=TRUE))
+source("01-packages.R", print.eval =F)
+load(file = "../data/cleanedData2.RData")
+attach(cleanedData)
+```
+
+For reproducibility, record the version numbers of all packages in the workspace
+
+```{r message =FALSE}
+sessionInfo() 
+```
+
+
+# Differences in stem number and lean
+
+
+```{r}
+
+png("../results/paper/standDensityLean.png", width = 800, height = 500)
+
+par(mfrow=c(1,2))
+
+
+  # STEM DENSITY #
+
+  density <- table(Stage, Plot)
+  barplot(density, las = 1, xlab = "Stem number", space = 1, legend = c("Establishment", "Exclusion", "Old-growth"), horiz = T, main = "Stem number")
+
+
+  # LEAN #
+  
+  boot.median <- function(vec,f)return(median(vec[f], na.rm = T )) 
+  leanPerPlot <- foreach(i=1:8) %do% boot(inclination[as.numeric(Plot) == i & Dbh_a<7], boot.median, 10000)
+  
+  bestEstimateLean <- unlist(foreach(i=1:8) %do% leanPerPlot[[i]]$t0)
+  
+  confintervals <- foreach(i=1:8) %do% boot.ci(leanPerPlot[[i]], type = "bca")
+  
+  CI <- matrix(unlist(foreach(i=1:8) %do% confintervals[[i]]$bca[1,4:5]), nrow = 2, byrow = F)
+
+stagesPerPlot <- as.factor(c("Establishment", "Exclusion","Exclusion", "Old-growth", "Old-growth", "Exclusion", "Establishment", "Establishment"))
+Gcol = gray.colors(3)
+  barplot2(bestEstimateLean, ci.l = CI[1,] ,ci.u = CI[2,], plot.ci = T, horiz = T, space = 1, main = "Lean [dbh < 7]", xlab = "Inclination [degrees]", col = Gcol[stagesPerPlot])
+  
+
+dev.off()
+
+
+img <- readPNG("../results/paper/standDensityLean.png")
+grid::grid.raster(img)
+
+
+#differences NS
+fitI <- lmer(inclination ~ Stage + (1|Plot), data = cleanedData[cleanedData$Dbh_a<7,]) 
+summary(fitI)
+anova(fitI)
+
+
+
+```
+
+
+
+
+
+
+
+# checks whether there is some difference in the spatial pattern of tree species in the different plots
+
+```{r}
+
+plots <- unique(cleanedData$Plot)
+
+png("../results/paper/spatialPatterns-plots.png", width = 1000, height = 1000)
+
+par(mfrow=c(4,4))
+
+for (i in 1:length(plots)){
+  
+  selectedData <- cleanedData[cleanedData$Plot == plots[i] & !is.na(cleanedData$Dbh_a) & cleanedData$Dbh_a > 5,]
+  attach(selectedData)
+  pattern <- ppp(X , Y, window=owin(c(0,ceiling(max(X))),c(0,ceiling(max(Y)))))  
+  
+  fit <- kppm(pattern, ~1, "Thomas")
+  summary(fit)
+  
+  plot(pattern, cex = 0.3, main = paste(Plot[1], Stage[2]))
+  
+  plot(envelope(fit, fun = "Gest"), main = paste(Plot[1], Stage[2]))
+  
+  detach(selectedData)
+}
+
+dev.off()
+
+img <- readPNG("../results/paper/spatialPatterns-plots.png")
+grid::grid.raster(img)
+
+
+```
+
+
+
+# cleaning up 
+
+```{r}
+
+detach(cleanedData)
+
+```
+
+
