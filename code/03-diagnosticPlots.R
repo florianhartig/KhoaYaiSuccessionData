@@ -8,8 +8,9 @@
 
 
 rm(list=ls(all=TRUE))
-load(file = "data/cleanedData.RData")
+load(file = "../data/cleanedData.RData")
 
+highlightInconsistencies = F
 
 draw.plots <- function(data){
   
@@ -19,13 +20,14 @@ draw.plots <- function(data){
   
   
   for (i in 1:number.plots){
-    filename1 = paste("results/diagnostics/spatialPattern", plotnames[i], ".png", sep = "")
-    filename2 = paste("results/diagnostics/treeData", plotnames[i], ".png", sep = "")
-    png(filename1, width = 1500, height = 1500)
+    filename1 = paste("../results/diagnostics/spatialPattern", plotnames[i], ".png", sep = "")
+    filename2 = paste("../results/diagnostics/treeData", plotnames[i], ".png", sep = "")
+    png(filename1, width = 1000, height = 790)
+    par(cex = 1.5)
     temp = cleanedData[cleanedData$Plot == plotnames[i],]
     with(temp,{
       sel <- !is.na(TH)
-      plot(X, Y, main = paste(Plot[1], Stage[1]), xlab = "X", ylab = "Y", cex = Dbh_a/10, xlim = c(-2,82), ylim = c(-2,82))
+      plot(X, Y, main = paste(Plot[1], Stage[1]), xlab = "X", ylab = "Y", cex = Dbh_a/10, xlim = c(-2,82), ylim = c(-2,62))
       abline( h = c(0,60))
       abline( v = c(0,80))
       abline( h = c(20,40), lty = 2)
@@ -34,9 +36,12 @@ draw.plots <- function(data){
       abline( v = seq(0,80,5), lty = 3, lwd = 0.5)
       
       
-      points(X[sel], Y[sel], pch = 2, col = "red" , cex = TH[sel]/5)
+      points(X[sel], Y[sel], pch = 2, col = "chartreuse4" , cex = TH[sel]/5)
       
-      points(X[sel], Y[sel], pch = 4, col = "green" , cex = inclination[sel] * 10)
+      points(X[sel], Y[sel], pch = 4, col = "darkorange" , cex = inclination[sel] * 10)
+      
+      if (highlightInconsistencies == T){
+      
       
       sel2 <- removedInconsistencies != ""
       
@@ -44,6 +49,8 @@ draw.plots <- function(data){
         points(X[sel2], Y[sel2], pch = 6, col = "Purple" , cex = 4)
         text(X[sel2] + 3, Y[sel2], removedInconsistencies[sel2],  col = "Purple")
         text(X[sel2] + 3, Y[sel2] - 1.5, ID[sel2],  col = "Darkred", cex = 1.5)      
+      }
+      
       }
       
       dev.off()

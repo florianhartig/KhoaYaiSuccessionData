@@ -12,3 +12,7 @@ data/cleanedData.RData
 data/cleanedData2.RData
 
 *.html
+
+*.md
+
+*.pdf

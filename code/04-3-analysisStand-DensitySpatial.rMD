@@ -28,37 +28,59 @@ sessionInfo()
 
 ```{r}
 
-png("../results/paper/standDensityLean.png", width = 800, height = 500)
+  png("../results/paper/standVariables.png", width = 800, height = 700)
 
-par(mfrow=c(1,2))
+  par(mfrow=c(2,2), oma = c(5,5,5,5))
 
 
   # STEM DENSITY #
 
   density <- table(Stage, Plot)
-  barplot(density, las = 1, xlab = "Stem number", space = 1, legend = c("Establishment", "Exclusion", "Old-growth"), horiz = T, main = "Stem number")
+  barplot(density, las = 1, xlab = "Stem number/0.48 ha", space = 1, legend = c("Establishment", "Exclusion", "Old-growth"), horiz = T, main = "Stem number")
 
+  mtext("A", side = 2, adj=4, las=1, padj=-9, cex = 1.5)
+
+  # Basal Area #
+  
+  boot.BA <- function(vec,f)return(sum(pi*vec[f]^2 / 10000, na.rm = T )) 
+  result <- foreach(i=1:8) %do% boot(Dbh_a[as.numeric(Plot) == i], boot.BA, 1000)
+  bestEstimate <- unlist(foreach(i=1:8) %do% result[[i]]$t0)
+  confintervals <- foreach(i=1:8) %do% boot.ci(result[[i]], type = "basic")
+  CI <- matrix(unlist(foreach(i=1:8) %do% confintervals[[i]]$basic[1,4:5]), nrow = 2, byrow = F)
+  Gcol = gray.colors(3)
+  barplot2(bestEstimate, ci.l = CI[1,] ,ci.u = CI[2,], plot.ci = T, horiz = T, space = 1, main = "Basal Area", xlab = "BA [m^2/0.48 ha]", col = Gcol[stagesPerPlot], names.arg = colnames(density), las =1 )
+
+ mtext("B", side = 2, adj=4, las=1, padj=-9, cex = 1.5)
+
+  # Crown Area #
+  
+  boot.sum <- function(vec,f)return(sum(vec[f], na.rm = T )) 
+  result <- foreach(i=1:8) %do% boot(predictedCrownArea[as.numeric(Plot) == i], boot.sum, 1000)
+  bestEstimate <- unlist(foreach(i=1:8) %do% result[[i]]$t0)
+  confintervals <- foreach(i=1:8) %do% boot.ci(result[[i]], type = "basic")
+  CI <- matrix(unlist(foreach(i=1:8) %do% confintervals[[i]]$basic[1,4:5]), nrow = 2, byrow = F)
+  Gcol = gray.colors(3)
+  barplot2(bestEstimate, ci.l = CI[1,] ,ci.u = CI[2,], plot.ci = T, horiz = T, space = 1, main = "Crown projection area", xlab = "Crown projection area [m^2/0.48 ha]", col = Gcol[stagesPerPlot], names.arg = colnames(density), las =1 )
+
+ mtext("C", side = 2, adj=4, las=1, padj=-9, cex = 1.5)
 
   # LEAN #
   
   boot.median <- function(vec,f)return(median(vec[f], na.rm = T )) 
-  leanPerPlot <- foreach(i=1:8) %do% boot(inclination[as.numeric(Plot) == i & Dbh_a<7], boot.median, 10000)
-  
+  leanPerPlot <- foreach(i=1:8) %do% boot(inclination[as.numeric(Plot) == i & Dbh_a<7], boot.median, 1000)
   bestEstimateLean <- unlist(foreach(i=1:8) %do% leanPerPlot[[i]]$t0)
-  
-  confintervals <- foreach(i=1:8) %do% boot.ci(leanPerPlot[[i]], type = "bca")
-  
-  CI <- matrix(unlist(foreach(i=1:8) %do% confintervals[[i]]$bca[1,4:5]), nrow = 2, byrow = F)
+  confintervals <- foreach(i=1:8) %do% boot.ci(leanPerPlot[[i]], type = "basic")
+  CI <- matrix(unlist(foreach(i=1:8) %do% confintervals[[i]]$basic[1,4:5]), nrow = 2, byrow = F)
+  Gcol = gray.colors(3)
+  barplot2(bestEstimateLean, ci.l = CI[1,] ,ci.u = CI[2,], plot.ci = T, horiz = T, space = 1, main = "Lean [dbh < 7]", xlab = "Average inclination [degrees]", col = Gcol[stagesPerPlot], names.arg = colnames(density), las =1 )
 
-stagesPerPlot <- as.factor(c("Establishment", "Exclusion","Exclusion", "Old-growth", "Old-growth", "Exclusion", "Establishment", "Establishment"))
-Gcol = gray.colors(3)
-  barplot2(bestEstimateLean, ci.l = CI[1,] ,ci.u = CI[2,], plot.ci = T, horiz = T, space = 1, main = "Lean [dbh < 7]", xlab = "Inclination [degrees]", col = Gcol[stagesPerPlot])
-  
+ mtext("D", side = 2, adj=4, las=1, padj=-9, cex = 1.5)
 
+  
 dev.off()
 
 
-img <- readPNG("../results/paper/standDensityLean.png")
+img <- readPNG("../results/paper/standVariables.png")
 grid::grid.raster(img)
 
 

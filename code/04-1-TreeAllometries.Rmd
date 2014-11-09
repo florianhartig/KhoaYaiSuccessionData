@@ -13,11 +13,20 @@ source("01-packages.R", print.eval =F)
 load(file = "../data/cleanedData.RData")
 attach(cleanedData)
 stageNames = c("Establishment", "Exclusion", "Old-growth")
+
+colorMap <- function(value){
+  colors = c("black", "chartreuse4", "darkorange")
+  return(colors[value])
+}
 ```
 
-For reproducibility, record the version numbers of all packages
+
+## Session info for full reproducibility
+
+Returns the random seed and the version number of all packages
 
 ```{r message =FALSE}
+.Random.seed
 sessionInfo() 
 ```
 
@@ -31,8 +40,11 @@ cleanedData$predictedTreeHeight<- predict(fitTH, newdata = cleanedData)
 
 plot1 <- function(){
   plot(log10(Dbh_a), log10(TH), pch = as.numeric(Stage), xlim = c(0.5, 2), main = "Tree height")
-  points(log10(Dbh_a), cleanedData$predictedTreeHeight, col = Stage, cex = 0.2)
-  legend("bottomright", legend = stageNames, pch = 1:3, col = 1:3, lwd = 1)
+  mtext("A", side = 2, adj=4, las=1, padj=-11, cex = 2)
+  points(log10(Dbh_a), cleanedData$predictedTreeHeight, col = colorMap(Stage), cex = 0.2)
+  legend("bottomright", legend = stageNames, pch = 1:3, col = colorMap(1:3), lwd = 1)
+  
+
 }
 plot1()
 ```
@@ -48,8 +60,11 @@ cleanedData$predictedCrownArea<- predict(fitCA, newdata = cleanedData)
 
 plot2 <- function(){
   plot(log10(Dbh_a), log10(crownArea), pch = as.numeric(Stage), xlim = c(0.5, 2), main = "Crown projection area")
-  points(log10(Dbh_a), cleanedData$predictedCrownArea, col = Stage, cex = 0.2)
-  legend("bottomright", legend = stageNames, pch = 1:3, col = 1:3, lwd = 1)
+  mtext("B", side = 2, adj=4, las=1, padj=-11, cex = 2)
+  points(log10(Dbh_a), cleanedData$predictedCrownArea, col = colorMap(Stage), cex = 0.2)
+  legend("bottomright", legend = stageNames, pch = 1:3, col = colorMap(1:3), lwd = 1)
+  
+
 }
 plot2()
 ```
@@ -66,8 +81,9 @@ cleanedData$predictedCrownHeight<- predict(fitCH, newdata = cleanedData)
 
 plot3 <- function(){
   plot(log10(Dbh_a), log10(crownHeight), pch = as.numeric(Stage), xlim = c(0.5, 2), main = "Crown height")
-  points(log10(Dbh_a), cleanedData$predictedCrownHeight, col = Stage, cex = 0.2)
-  legend("bottomright", legend = stageNames, pch = 1:3, col = 1:3, lwd = 1)
+ mtext("C", side = 2, adj=4, las=1, padj=-11, cex = 2)
+  points(log10(Dbh_a), cleanedData$predictedCrownHeight, col = colorMap(Stage), cex = 0.2)
+  legend("bottomright", legend = stageNames, pch = 1:3, col = colorMap(1:3), lwd = 1)
 }
 plot3()
 ```
@@ -84,8 +100,9 @@ cleanedData$predictedCrownVolume<- predict(fitCV, newdata = cleanedData)
 
 plot4 <- function(){
   plot(log10(Dbh_a), log10(crownVolume), pch = as.numeric(Stage), xlim = c(0.5, 2), main = "Crown Volume")
-  points(log10(Dbh_a), cleanedData$predictedCrownVolume, col = Stage, cex = 0.2)
-  legend("bottomright", legend = stageNames, pch = 1:3, col = 1:3, lwd = 1)
+  mtext("D", side = 2, adj=4, las=1, padj=-11, cex = 2)
+  points(log10(Dbh_a), cleanedData$predictedCrownVolume, col = colorMap(Stage), cex = 0.2)
+  legend("bottomright", legend = stageNames, pch = 1:3, col = colorMap(1:3), lwd = 1)
 }
 plot4()
 ```
@@ -117,4 +134,13 @@ save.image(file = "../data/cleanedData2.RData")
 
 
 ```
+
+x <- cbind(log10(Dbh_a), log10(TH), log10(crownHeight), log10(crownVolume), Stage )
+x <- x[(is.na(x[,4]) == F), ]
+pr.cmp <- princomp(x)
+summary(pr.cmp)
+biplot(pr.cmp)
+
+summary(lm(log10(Dbh_a[!is.na(TH)]) ~ Stage[!is.na(TH)]))
+
 
