@@ -8,9 +8,9 @@
 
 
 rm(list=ls(all=TRUE))
-load(file = "../data/cleanedData.RData")
+load(file = "data/cleanedData.RData")
 
-highlightInconsistencies = F
+highlightInconsistencies = T
 
 draw.plots <- function(data){
   
@@ -20,8 +20,8 @@ draw.plots <- function(data){
   
   
   for (i in 1:number.plots){
-    filename1 = paste("../results/diagnostics/spatialPattern", plotnames[i], ".png", sep = "")
-    filename2 = paste("../results/diagnostics/treeData", plotnames[i], ".png", sep = "")
+    filename1 = paste("results/diagnostics/spatialPattern", plotnames[i], ".png", sep = "")
+    filename2 = paste("results/diagnostics/treeData", plotnames[i], ".png", sep = "")
     png(filename1, width = 1000, height = 790)
     par(cex = 1.5)
     temp = cleanedData[cleanedData$Plot == plotnames[i],]

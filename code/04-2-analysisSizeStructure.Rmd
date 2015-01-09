@@ -13,13 +13,14 @@ Report created with knitR. Source code see https://github.com/florianhartig/Khoa
 rm(list=ls(all=TRUE))
 source("01-packages.R", print.eval =F)
 load(file = "../data/cleanedData2.RData")
+stageNames = c("Stand initiation", "Stem exclusion", "Old-growth")
 attach(cleanedData)
-stageNames = c("Establishment", "Exclusion", "Old-growth")
 ```
 
-For reproducibility, record the version numbers of all packages
+### Session info for reproducibility
 
 ```{r message =FALSE}
+save(.Random.seed, file = "randomSeed4.2.txt")
 sessionInfo() 
 ```
 
@@ -33,8 +34,8 @@ axis(4, at=log10(c(2,5,10,20,50)),labels=c(2,5,10,20,50), las = T)
 axis(4,at=log10(c(c(2:10), seq(20,50,10))),labels = F)
 mtext("Predicted tree height [m]", side = 4, line = 3, cex = 1.4*par("cex.lab"))
 
-beanplot(log10(Dbh_a) ~ Stage , log="", ll = 0.005, side = "first", col = "darkgrey", add = T) 
-beanplot(predictedTreeHeight ~ Stage , log="", ll = 0.005, add = T, side = "second") 
+beanplot(log10(Dbh_a) ~ Stage , log="", ll = 0.005, side = "first", col = "darkgrey", add = T,show.names=FALSE ) 
+beanplot(predictedTreeHeight ~ Stage , log="", ll = 0.005, add = T, side = "second", names = stageNames) 
 legend("topleft", bty="n",c("Measured DBH [cm]", "Predicted tree height [m]"),
        fill = c("darkgrey", "black"))
 
@@ -47,8 +48,8 @@ axis(4, at=log10(c(1,2,5,10,20,50,100, 200)),labels=c(1,2,5,10,20,50,100, 200), 
 axis(4,at=log10(c(c(1:10), seq(20,100,10), 200)),labels = F)
 mtext("Predicted crown area [m^2]", side = 4, line = 3, cex = 1.4*par("cex.lab"))
 
-beanplot(predictedCrownHeight / predictedTreeHeight ~ Stage , log="", ll = 0.005, side = "first", col = "darkgrey", add = T) 
-beanplot(predictedCrownArea ~ Stage , log="", ll = 0.005, add = T, side = "second") 
+beanplot(predictedCrownHeight / predictedTreeHeight ~ Stage , log="", ll = 0.005, side = "first", col = "darkgrey", add = T,show.names=FALSE) 
+beanplot(predictedCrownArea ~ Stage , log="", ll = 0.005, add = T, side = "second", names = stageNames) 
 legend("topleft", bty="n",c("Predicted relative crown height", "Predicted crown area [m^2]"),
        fill = c("darkgrey", "black"))
 
@@ -72,8 +73,8 @@ axis(4, at=log10(c(2,5,10,20,50)),labels=c(2,5,10,20,50), las = T)
 axis(4,at=log10(c(c(2:10), seq(20,50,10))),labels = F)
 mtext("Predicted tree height [m]", side = 4, line = 3, cex = 1.4*par("cex.lab"))
 
-beanplot(log10(Dbh_a) ~ Stage , log="", ll = 0.005, side = "first", col = "darkgrey", add = T) 
-beanplot(predictedTreeHeight ~ Stage , log="", ll = 0.005, add = T, side = "second") 
+beanplot(log10(Dbh_a) ~ Stage , log="", ll = 0.005, side = "first", col = "darkgrey", add = T,show.names=FALSE) 
+beanplot(predictedTreeHeight ~ Stage , log="", ll = 0.005, add = T, side = "second", names = stageNames) 
 legend("topleft", bty="n",c("Measured DBH [cm]", "Predicted tree height [m]"),
        fill = c("darkgrey", "black"))
 
@@ -86,8 +87,8 @@ axis(4, at=log10(c(1,2,5,10,20,50,100, 200)),labels=c(1,2,5,10,20,50,100, 200), 
 axis(4,at=log10(c(c(1:10), seq(20,100,10), 200)),labels = F)
 mtext("Predicted crown area [m^2]", side = 4, line = 3, cex = 1.4*par("cex.lab"))
 
-beanplot(predictedCrownHeight / predictedTreeHeight ~ Stage , log="", ll = 0.005, side = "first", col = "darkgrey", add = T) 
-beanplot(predictedCrownArea ~ Stage , log="", ll = 0.005, add = T, side = "second") 
+beanplot(predictedCrownHeight / predictedTreeHeight ~ Stage , log="", ll = 0.005, side = "first", col = "darkgrey", add = T,show.names=FALSE) 
+beanplot(predictedCrownArea ~ Stage , log="", ll = 0.005, add = T, side = "second", names = stageNames) 
 legend("topleft", bty="n",c("Predicted relative crown height", "Predicted crown area [m^2]"),
        fill = c("darkgrey", "black"))
 

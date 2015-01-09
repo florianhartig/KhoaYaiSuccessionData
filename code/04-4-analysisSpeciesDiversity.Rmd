@@ -18,9 +18,10 @@ load(file = "../data/cleanedData2.RData")
 attach(cleanedData)
 ```
 
-For reproducibility, record the version numbers of all packages in the workspace
+### Session info for reproducibility
 
 ```{r message =FALSE}
+save(.Random.seed, file = "randomSeed4.4.txt")
 sessionInfo() 
 ```
 
@@ -29,7 +30,8 @@ sessionInfo()
 
 ```{r}
 
-stagesPerPlot <- as.factor(c("Establishment", "Exclusion","Exclusion", "Old-growth", "Old-growth", "Exclusion", "Establishment", "Establishment"))
+stagesPerPlot <- as.factor(c("Stand initiation", "Stem exclusion","Stem exclusion", "Old-growth", "Old-growth", "Stem exclusion", "Stand initiation", "Stand initiation"))
+stageNames = c("Stand initiation", "Stem exclusion", "Old-growth")
   
 
 
@@ -61,8 +63,6 @@ grid::grid.raster(img)
 
 # Checks for similarity in the community matrix and then clusters the plots according to that
 
-png("../results/paper/CommunitySimilarity.png", width = 500, height = 500)
-par(cex = 1.3)
 
 # create community matrix per plot
 communityMatrix <- table(Plot, Species)
@@ -79,8 +79,28 @@ stagePlot = foreach(i=1:length(comm.bc.clust$labels))  %do% as.character(cleaned
 
 names = paste(comm.bc.clust$labels, " (", unlist(stagePlot), ")", sep = "")
 
+```
+
+Standard hierarchical cluster plot
+
+```{r}
+plot(comm.bc.clust)
+```
+
+As unrooted phylogeny, used for the paper
+
+```{r}
+png("../results/paper/CommunitySimilarity.png", width = 500, height = 500)
+par(cex = 1.3)
+plot(comm.bc.clust)
+
 Gcol = c("black", "chartreuse4", "darkorange")
-plot(as.phylo(comm.bc.clust), main = "Community similarity", type = "unrooted", tip.color = Gcol[stagesPerPlot])
+Gcol = c("black", "darkgrey", "lightgrey")
+
+plot(as.phylo(comm.bc.clust, directed = F), main = "Bray-Curtis community similarity", type = "unrooted", tip.color = Gcol[stagesPerPlot])
+
+
+axis(side = 1, at = seq(0,1,0.2)-0.1, labels =  seq(0,1,0.2), xlim = c(0,1))
 
 dev.off()
 
@@ -91,8 +111,9 @@ grid::grid.raster(img)
 
 ```
 
-# similarity in size classes 
+# Similarity in size classes 
 
+Analysis not presented in the paper 
 
 
 ```{r}

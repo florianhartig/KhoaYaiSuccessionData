@@ -14,11 +14,13 @@ rm(list=ls(all=TRUE))
 source("01-packages.R", print.eval =F)
 load(file = "../data/cleanedData2.RData")
 attach(cleanedData)
+stageNames = c("Stand initiation", "Stem exclusion", "Old-growth")
 ```
 
-For reproducibility, record the version numbers of all packages in the workspace
+### Session info for reproducibility
 
 ```{r message =FALSE}
+save(.Random.seed, file = "randomSeed.4.3.txt")
 sessionInfo() 
 ```
 
@@ -26,7 +28,7 @@ sessionInfo()
 # Differences in stem number and lean
 
 
-```{r}
+```{r, fig.height=15, fig.width=15}
 
   png("../results/paper/standVariables.png", width = 800, height = 700)
 
@@ -36,7 +38,7 @@ sessionInfo()
   # STEM DENSITY #
 
   density <- table(Stage, Plot)
-  barplot(density, las = 1, xlab = "Stem number/0.48 ha", space = 1, legend = c("Establishment", "Exclusion", "Old-growth"), horiz = T, main = "Stem number")
+  barplot(density, las = 1, xlab = "Stem number/0.48 ha", space = 1, legend = stageNames , horiz = T, main = "Stem number", args.legend =list(x="topleft"))
 
   mtext("A", side = 2, adj=4, las=1, padj=-9, cex = 1.5)
 
@@ -101,7 +103,7 @@ anova(fitI)
 
 # checks whether there is some difference in the spatial pattern of tree species in the different plots
 
-```{r}
+```{r, fig.width=20, fig.height=20}
 
 plots <- unique(cleanedData$Plot)
 
