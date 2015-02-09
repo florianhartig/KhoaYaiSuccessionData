@@ -1,6 +1,6 @@
 ---
 title: "Supplementary - TreeAllometries"
-author: ""
+author: ''
 date: "5 Aug 2014"
 output: html_document
 ---
@@ -11,12 +11,12 @@ output: html_document
 rm(list=ls(all=TRUE))
 source("01-packages.R", print.eval =F)
 load(file = "../data/cleanedData.RData")
+stagesPerPlot <- as.factor(c("Establishment", "Establishment", "Establishment", "Exclusion", "Exclusion","Exclusion", "Old-growth", "Old-growth"))
 attach(cleanedData)
-stageNames = c("Stand initiation", "Stem exclusion", "Old-growth")
 
 colorMap <- function(value){
   colors = c("black", "chartreuse4", "darkorange")
-  colors = c("black", "darkgrey", "lightgrey")
+  #colors = c("black", "darkgrey", "lightgrey")
   return(colors[value])
 }
 ```
@@ -41,7 +41,7 @@ plot1 <- function(){
   plot(log10(Dbh_a), log10(TH), pch = as.numeric(Stage), xlim = c(0.5, 2), main = "Tree height", xlab = "Log10 DBH [cm]", ylab = "Log10 Height [m]")
   mtext("A", side = 2, adj=4, las=1, padj=-11, cex = 2)
   points(log10(Dbh_a), cleanedData$predictedTreeHeight, col = colorMap(Stage), cex = 0.2)
-  legend("bottomright", legend = stageNames, pch = 1:3, col = colorMap(1:3), lwd = 1, bg = "white")
+  legend("bottomright", legend = levels(Stage), pch = 1:3, col = colorMap(1:3), lwd = 1, bg = "white")
   
 
 }
@@ -61,7 +61,7 @@ plot2 <- function(){
   plot(log10(Dbh_a), log10(crownArea), pch = as.numeric(Stage), xlim = c(0.5, 2), main = "Crown projection area", xlab = "Log10 DBH [cm]", ylab = "Log10 Area [m^2]")
   mtext("B", side = 2, adj=4, las=1, padj=-11, cex = 2)
   points(log10(Dbh_a), cleanedData$predictedCrownArea, col = colorMap(Stage), cex = 0.2)
-  legend("bottomright", legend = stageNames, pch = 1:3, col = colorMap(1:3), lwd = 1, bg = "white")
+  legend("bottomright", legend = levels(Stage), pch = 1:3, col = colorMap(1:3), lwd = 1, bg = "white")
   
   
 
@@ -83,7 +83,7 @@ plot3 <- function(){
   plot(log10(Dbh_a), log10(crownHeight), pch = as.numeric(Stage), xlim = c(0.5, 2), main = "Crown height", xlab = "Log10 DBH [cm]", ylab = "Log10 Height [m^2]")
  mtext("C", side = 2, adj=4, las=1, padj=-11, cex = 2)
   points(log10(Dbh_a), cleanedData$predictedCrownHeight, col = colorMap(Stage), cex = 0.2)
-  legend("bottomright", legend = stageNames, pch = 1:3, col = colorMap(1:3), lwd = 1, bg = "white")
+  legend("bottomright", legend = levels(Stage), pch = 1:3, col = colorMap(1:3), lwd = 1, bg = "white")
 }
 plot3()
 ```
@@ -102,7 +102,7 @@ plot4 <- function(){
   plot(log10(Dbh_a), log10(crownVolume), pch = as.numeric(Stage), xlim = c(0.5, 2), main = "Crown Volume", xlab = "Log10 DBH [cm]", ylab = "Log10 Volume [m^3]")
   mtext("D", side = 2, adj=4, las=1, padj=-11, cex = 2)
   points(log10(Dbh_a), cleanedData$predictedCrownVolume, col = colorMap(Stage), cex = 0.2)
-  legend("bottomright", legend = stageNames, pch = 1:3, col = colorMap(1:3), lwd = 1, bg = "white")
+  legend("bottomright", legend = levels(Stage), pch = 1:3, col = colorMap(1:3), lwd = 1, bg = "white")
 }
 plot4()
 ```

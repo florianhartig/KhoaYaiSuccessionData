@@ -4,6 +4,23 @@
 #' Scripts are intended to be run in order of file names
 #'
 #' @author Florian Hartig \url{http://florianhartig.wordpress.com/}
+#' 
+#' paths are relative to code directory
+#' 
+#' 
+
+rm(list=ls(all=TRUE))
+
+source("01-packages.r")
+
+# reading Plot data
+baseData <-read.csv("../data/CrHi_Map4.csv")
+speciesData <- read.csv("../data/Species_List.csv")
+
+# create output folders
+dir.create("../results/paper", showWarnings = FALSE)
+dir.create("../results/diagnostics", showWarnings = FALSE)
+
 
 
 # Reordering, Calculations, Matching in new df
@@ -30,6 +47,20 @@ cleanedData$Shape[cleanedData$Shape == ""] = NA
 cleanedData$Shape = factor(cleanedData$Shape)
 cleanedData$removedInconsistencies= rep("", datarows) # for consistency checks
 
+
+# renaming plot names and States
+
+# Before [1] "DumpSF" "KK1SF"  "KK2SF"  "KKOF"   "KSOF"   "KSSF"   "Res1"   "Res2" 
+
+# Res1=SIS1; Res2=SIS2;
+# DumpSF=SIS3; KK1SF=SES1; KK2SF=SES2; KSSF=SES3; KKOF=OGS1
+# KSOF=OGS2
+
+levels(cleanedData$Plot) = c("SIS3", "SES1", "SES2", "OGS1", "OGS2","SES3", "SIS1", "SIS2")
+
+cleanedData$Plot = factor(cleanedData$Plot,levels(cleanedData$Plot)[c(7,8,1,2,3,6,4,5)])
+
+levels(cleanedData$Stage) = c("Stand initiation", "Stem exclusion", "Old-growth")
 
 ######################
 # HANDLE TREE XY COORDINATES
@@ -230,12 +261,12 @@ plot(cleanedData$Dbh_a, cleanedData$crownVolume, col = cleanedData$Plot)
 # SUMMARIZE INCONSISTENCIES
 
 inconsistent <- (cleanedData[cleanedData$removedInconsistencies != "", ])
-write.csv2(inconsistent, "results/inconsistencies.csv")
+write.csv2(inconsistent, "../results/inconsistencies.csv")
 head(cleanedData[cleanedData$removedInconsistencies!="",])
 
 
 
-save.image(file = "data/cleanedData.RData")
+save.image(file = "../data/cleanedData.RData")
 
 
 

@@ -16,6 +16,7 @@ rm(list=ls(all=TRUE))
 source("01-packages.R", print.eval =F)
 load(file = "../data/cleanedData2.RData")
 attach(cleanedData)
+stagesPerPlot <- as.factor(c("Establishment", "Establishment", "Establishment", "Exclusion", "Exclusion","Exclusion", "Old-growth", "Old-growth"))
 ```
 
 ### Session info for reproducibility
@@ -30,22 +31,17 @@ sessionInfo()
 
 ```{r}
 
-stagesPerPlot <- as.factor(c("Stand initiation", "Stem exclusion","Stem exclusion", "Old-growth", "Old-growth", "Stem exclusion", "Stand initiation", "Stand initiation"))
-stageNames = c("Stand initiation", "Stem exclusion", "Old-growth")
-  
-
-
 png("../results/paper/DiversityIndices.png", width = 500, height = 500)
-par(cex = 1.3)
+par(cex = 1.4)
 
 totalrichness = length(unique(as.numeric(Species)))
 simpson <- foreach(i=1:8) %do% diversity(table(Species[as.numeric(Plot) == i]), index = "invsimpson")
 richness <- foreach(i=1:8) %do% (length(unique(Species[as.numeric(Plot) == i])) )
 
 tmp <- cbind(unlist(simpson), unlist(richness))
-Gcol = gray.colors(3)
+Gcol = rev(gray.colors(3))
 bp <- barplot(tmp, beside=T, names = c("Inv-Simpson", "Richness"), las = 1, col = Gcol[stagesPerPlot], ylim = c(0,100))
-legend(1,100, legend = unique(stagesPerPlot), col = Gcol, pch = 15)
+legend(1,100, legend = unique(stagesPerPlot), col = Gcol, pch = 15, bg=NULL, bty = "n")
 text(bp-0.4, tmp + 2, rep(levels(Plot),2),cex=0.8,pos=4, srt = 90) 
 
 
@@ -95,7 +91,7 @@ par(cex = 1.3)
 plot(comm.bc.clust)
 
 Gcol = c("black", "chartreuse4", "darkorange")
-Gcol = c("black", "darkgrey", "lightgrey")
+Gcol = rev(c("black", "darkgrey", "lightgrey"))
 
 plot(as.phylo(comm.bc.clust, directed = F), main = "Bray-Curtis community similarity", type = "unrooted", tip.color = Gcol[stagesPerPlot])
 

@@ -1,3 +1,43 @@
+---
+title: "Floristic summary"
+author: "Florian Hartig"
+date: "15 Jan 2015"
+output: html_document
+---
+
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 800)
+```
+
+```{r echo =FALSE}
+rm(list=ls(all=TRUE))
+source("01-packages.R", print.eval =F)
+load(file = "../data/cleanedData.RData")
+stageNames = c("Stand initiation", "Stem exclusion", "Old-growth")
+attach(cleanedData)
+```
+
+## Per Plot
+
+Species counts, listed per Plot
+
+```{r}
+speciestable <- with(cleanedData, table(Species, Plot))
+addmargins(speciestable)
+```
+
+## Per Stage
+
+Species counts, listed per Stage
+
+```{r}
+speciestable <- with(cleanedData, table(Species, Stage))
+addmargins(speciestable)
+```
+
+# Diagnostics Plots
+
+```{r}
 #' Basic data exploration and diagnostics
 #' for analysis of Khao Yai Succession data
 #' 
@@ -8,7 +48,7 @@
 
 
 rm(list=ls(all=TRUE))
-load(file = "data/cleanedData.RData")
+load(file = "../data/cleanedData.RData")
 
 highlightInconsistencies = T
 
@@ -20,8 +60,8 @@ draw.plots <- function(data){
   
   
   for (i in 1:number.plots){
-    filename1 = paste("results/diagnostics/spatialPattern", plotnames[i], ".png", sep = "")
-    filename2 = paste("results/diagnostics/treeData", plotnames[i], ".png", sep = "")
+    filename1 = paste("../results/diagnostics/spatialPattern", plotnames[i], ".png", sep = "")
+    filename2 = paste("../results/diagnostics/treeData", plotnames[i], ".png", sep = "")
     png(filename1, width = 1000, height = 790)
     par(cex = 1.5)
     temp = cleanedData[cleanedData$Plot == plotnames[i],]
@@ -96,6 +136,12 @@ draw.plots <- function(data){
 }
 
 draw.plots(cleanedData)
+
+
+```
+
+
+
 
 
 
