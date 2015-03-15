@@ -1,0 +1,164 @@
+---
+title: "Wood density calculations"
+author: 'Florian Hartig'
+date:  `r as.character(format(Sys.Date(), format="%B %d, %Y"))`
+output:
+  html_document: default
+---
+
+
+```{r message =FALSE}
+rm(list=ls(all=TRUE))
+source("../code/01-packages.R", print.eval =F)
+load(file = "../data/cleanedData2.RData")
+woodDensity <- read.csv2("../data/GlobalWoodDensityDatabase.csv")
+colnames(woodDensity)[which(colnames(woodDensity) == "Wood.density..g.cm.3...oven.dry.mass.fresh.volume")] = "Density"
+```
+
+
+## Deriving wood density values 
+
+The wood density dataset has often several observations per species. We create a summary, using the median per species
+
+```{r}
+woodDensitySummarized <- ddply(woodDensity, .(Binomial, Family), summarise,
+             medianDensity = median(Density, na.rm = TRUE))
+colnames(woodDensitySummarized)[1] <- "Species"
+```
+
+Some species are available for several regions, I haven't summarized this yet. We will take the region 
+
+```{r}
+speciesData$Species = paste(speciesData$genus, speciesData$specificname)
+speciesData$Density = NA
+speciesData$DensityDirect = NA
+
+# getting mean wood density 
+meanRegion = mean(woodDensity$Density[woodDensity$Region == "South-East Asia (tropical)"])
+
+for (i in 1:length(speciesData$Species)){
+  pos = which(as.character(speciesData$Species[i]) == as.character(woodDensitySummarized$Species))
+  if (length(pos) == 0){
+    speciesData$Density[i] = meanRegion  
+    speciesData$DensityDirect[i] = F
+  } else if (length(pos) == 1){
+    speciesData$Density[i] = woodDensitySummarized$medianDensity[pos]
+    speciesData$DensityDirect[i] = T
+  } 
+}
+
+cleanedData$Density = NA
+cleanedData$DensityDirect = NA
+
+
+for (i in 1:length(cleanedData$Density)){
+    pos = which(as.character(cleanedData$Species[i]) == as.character(speciesData$Species))
+    if (length(pos) == 0){
+    cleanedData$Density[i] = meanRegion  
+    cleanedData$DensityDirect[i] = F
+    } else if (length(pos) == 1){
+    cleanedData$Density[i] = speciesData$Density[pos]    
+    cleanedData$DensityDirect[i] = speciesData$DensityDirect[pos] 
+  }     
+}
+```
+
+
+```{r, fig.width=8, fig.height=10}
+par(mfrow=c(2,2))
+stages = levels(cleanedData$Stage)
+hist(cleanedData$Density, breaks = 50, col = "grey", main = "Frequency of wood density in all plots", xlim = c(0.2,1))
+for (i in 1:3)
+hist(cleanedData$Density[cleanedData$Stage == stages[i]], breaks = 50, col = "grey", main = paste("Frequency of wood density in", stages[i]), xlim = c(0.2,1))
+```
+
+
+
+
+## Form factor 
+
+As a first approximation, I set the form factor to 0.7, assuming a formula of 
+
+AGB = F * BA * Height * Density
+
+Chave, J.; Andalo, C.; Brown, S.; Cairns, M.; Chambers, J.; Eamus, D.; Fšlster, H.; Fromard, F.; Higuchi, N.; Kira, T.; Lescure, J.-P.; Nelson, B.; Ogawa, H.; Puig, H.; RiŽra, B. & Yamakura, T. (2005) Tree allometry and improved estimation of carbon stocks and balance in tropical forests. Oecologia, Springer-Verlag, 145, 87-99-.
+
+Brown, S.; Gillespie, A. J. & Lugo, A. E. (1989) Biomass estimation methods for tropical forests with applications to forest inventory data. Forest science, Society of American Foresters, 35, 881-902.
+
+
+Latifah, Sitti. Inventory and quality assessment of tropical rainforests in the Lore Lindu national park (Sulawesi, Indonesia). Cuvillier Verlag, 2005.
+
+
+The factor 0.1 is for adjusting that we calculate height in m, and Basal area 
+
+```{r}
+cleanedData$FormFactor = 0.7 
+```
+
+
+### Calculating Tree Biomass
+
+```{r}
+cleanedData$BasalArea = cleanedData$Dbh_a^2 * pi / 4 * 0.01^2
+cleanedData$Biomass = cleanedData$FormFactor * cleanedData$Density * 10^(cleanedData$predictedTreeHeight) * cleanedData$BasalArea 
+
+```
+
+
+
+# Analysis
+
+
+### Basics
+
+
+```{r}
+plotSize = 0.8 * 0.6
+ddply(cleanedData, .(Stage, Plot), 
+      summarize, 
+      Biomass = sum(Biomass) / plotSize ,
+      BasalArea = sum(BasalArea) / plotSize )
+```
+
+
+### Variability acros subquadrats for each Plot
+
+
+```{r, fig.width=8, fig.height=15}
+dat <-   ddply(cleanedData, .(Stage, Plot, SubQuad), 
+      summarize, 
+      Biomass = sum(Biomass) / plotSize * 16 ,
+      BasalArea = sum(BasalArea) / plotSize * 16 )
+
+par(mfrow=c(4,2))
+selection = levels(cleanedData$Plot)
+for (i in 1:length(selection)){
+    hist(dat$Biomass[dat$Plot == selection[i]], breaks = 30, col = "grey", main = paste("Biomass variability across subplots in", selection[i]), xlim = c(0,500))
+  
+}
+```
+
+
+
+# Spatial analysis 
+
+
+```{r, fig.width=10, fig.height=10}
+par(mfrow = c(1,2))
+plots = levels(cleanedData$Plot)
+for (i in 1:length(plots)){
+  
+  selection <- cleanedData[cleanedData$Plot == plots[i],]
+  
+  maxX = max(selection$X)
+  maxY = max(selection$Y)
+  
+  pattern <- ppp(selection$X, selection$Y, window=owin(c(0,maxX),c(0,maxY)),  marks = selection$Biomass)
+  plot(pattern, main = "Biomass Pattern")
+  plot(density(pattern, sigma = 2),  main = "Biomass Density")
+}
+
+
+```
+
+
