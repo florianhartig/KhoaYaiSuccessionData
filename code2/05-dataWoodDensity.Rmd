@@ -1,7 +1,7 @@
 ---
 title: "Wood density calculations"
 author: 'Florian Hartig'
-date:  `r as.character(format(Sys.Date(), format="%B %d, %Y"))`
+date:  
 output:
   html_document: default
 ---
@@ -26,7 +26,10 @@ woodDensitySummarized <- ddply(woodDensity, .(Binomial, Family), summarise,
 colnames(woodDensitySummarized)[1] <- "Species"
 ```
 
-Some species are available for several regions, I haven't summarized this yet. We will take the region 
+Calculate the wood density for each species.
+
+If a species is not in the databse, I use the mean value for the region "South-East Asia (tropical)" (around 0.57). This was the case for approximately 1/3 of the individuals. 
+
 
 ```{r}
 speciesData$Species = paste(speciesData$genus, speciesData$specificname)
@@ -64,7 +67,7 @@ for (i in 1:length(cleanedData$Density)){
 ```
 
 
-```{r, fig.width=8, fig.height=10}
+```{r, fig.width=8, fig.height=8}
 par(mfrow=c(2,2))
 stages = levels(cleanedData$Stage)
 hist(cleanedData$Density, breaks = 50, col = "grey", main = "Frequency of wood density in all plots", xlim = c(0.2,1))
@@ -73,13 +76,15 @@ hist(cleanedData$Density[cleanedData$Stage == stages[i]], breaks = 50, col = "gr
 ```
 
 
-
-
 ## Form factor 
 
 As a first approximation, I set the form factor to 0.7, assuming a formula of 
 
 AGB = F * BA * Height * Density
+
+We could in the future play around with different form factors. It may make a difference for the estimated absolute biomass values on the plot, but probably not for relative values, and analyses about variability. 
+
+References see 
 
 Chave, J.; Andalo, C.; Brown, S.; Cairns, M.; Chambers, J.; Eamus, D.; Fšlster, H.; Fromard, F.; Higuchi, N.; Kira, T.; Lescure, J.-P.; Nelson, B.; Ogawa, H.; Puig, H.; RiŽra, B. & Yamakura, T. (2005) Tree allometry and improved estimation of carbon stocks and balance in tropical forests. Oecologia, Springer-Verlag, 145, 87-99-.
 
@@ -87,9 +92,6 @@ Brown, S.; Gillespie, A. J. & Lugo, A. E. (1989) Biomass estimation methods for 
 
 
 Latifah, Sitti. Inventory and quality assessment of tropical rainforests in the Lore Lindu national park (Sulawesi, Indonesia). Cuvillier Verlag, 2005.
-
-
-The factor 0.1 is for adjusting that we calculate height in m, and Basal area 
 
 ```{r}
 cleanedData$FormFactor = 0.7 
@@ -105,7 +107,6 @@ cleanedData$Biomass = cleanedData$FormFactor * cleanedData$Density * 10^(cleaned
 ```
 
 
-
 # Analysis
 
 
@@ -119,6 +120,10 @@ ddply(cleanedData, .(Stage, Plot),
       Biomass = sum(Biomass) / plotSize ,
       BasalArea = sum(BasalArea) / plotSize )
 ```
+
+Values should be in t/ha.
+
+The values are relatively low. I think that this is in part due to the relatively low specific wood density of on average around 0.55, which surprised me, but seems to be normal for tropical Asian forests. 
 
 
 ### Variability acros subquadrats for each Plot
@@ -139,12 +144,17 @@ for (i in 1:length(selection)){
 ```
 
 
+We see increasing variability for the older-growth plots.
+
+I think you can savely conclude that we would need larger inventory plots to get stable biomass estimates. 
+
+
 
 # Spatial analysis 
 
 
-```{r, fig.width=10, fig.height=10}
-par(mfrow = c(1,2))
+```{r, fig.width=10, fig.height=5}
+par(mfrow = c(1,2), mar = c(1,1,1,1))
 plots = levels(cleanedData$Plot)
 for (i in 1:length(plots)){
   
@@ -155,10 +165,11 @@ for (i in 1:length(plots)){
   
   pattern <- ppp(selection$X, selection$Y, window=owin(c(0,maxX),c(0,maxY)),  marks = selection$Biomass)
   plot(pattern, main = "Biomass Pattern")
-  plot(density(pattern, sigma = 2),  main = "Biomass Density")
+  plot(density(pattern, sigma = 1),  main = "Biomass Density")
+  mtext(plots[i], outer = T, line = -3, padj = 1)
 }
-
 
 ```
 
+Result is pretty much the same as in the subquadrat analysis. 
 
