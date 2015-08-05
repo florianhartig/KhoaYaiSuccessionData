@@ -1,0 +1,39 @@
+---
+title: "Analysis"
+author: "Florian Hartig"
+date: "29 Jul 2015"
+output: html_document
+---
+
+```{r}
+load("../data/cleanedLianaData.Rmd")
+library(bipartite)
+```
+
+
+```{r}
+lianaData$foo = 1
+
+network <- frame2webs(lianaData, varnames = c("mnemonic", "Lia_Mnemonic", "foo"), type.out = "list", emptylist = TRUE)
+
+visweb(network[[1]], type = "diagonal")
+
+image(log(network[[1]] + 1))
+plotweb(network[[1]])
+
+```
+
+
+```{r}
+networklevel(network[[1]], index="H2")
+
+
+networklevel(network[[1]], index="connectance")
+
+H2fun(network[[1]])
+
+
+```
+
+
+

@@ -1,0 +1,21 @@
+---
+title: "Cleaning"
+author: "Florian Hartig"
+date: "29 Jul 2015"
+output: html_document
+---
+
+```{r}
+
+lianaData<- read.csv("../data/Liana_SupTree.csv")
+plotData <- read.csv("../data/Tree_3rd_census.csv")
+
+```
+
+
+
+
+```{r}
+save.image("../data/cleanedLianaData.Rmd")
+```
+
